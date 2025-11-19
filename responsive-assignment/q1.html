@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-sacle=1.0">
+        <title>Document</title>
+        <style>
+            body{
+                font:arial, sans-serif;
+                margin: 0;
+                background-color: antiquewhite;
+                padding: 20px;
+            }
+            .container{
+                display: grid;
+                grid-template-columns: repeat(repeat(3, 1fr));
+                gap: 20px;
+                max-width: 12px;
+                margin: auto;
+                padding: 20px;
+                background-color:blanchedalmond;
+                grid-template-columns:repeat(3,1fr);
+                justify-content: center;
+            }
+            h1{
+                text-align: center;
+                color: #000;
+                margin-bottom: 30px;
+            }
+            .cards-container{
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 20px;
+                justify-content: ;
+            }
+            .card{
+                background-color: white;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                padding: 15px;
+                text-align: center;
+            }
+            .card img{
+                border-radius: 8px;
+                width: 300px;
+                height: 200px;
+                object-fit: cover;
+            }
+            .card h2{
+                margin: 10px 0;
+            }
+            .card p{
+                color: #444;
+                font-size: 14px;
+            }
+            .price{
+                font-weight: bold;
+                color: #333;
+                margin-top: 10px;
+            }
+            @media screen and (max-width: 800px){
+                .container{
+                    grid-template-columns: repeat(2, 1fr);
+                }
+            }
+            @media screen and (max-width: 600px){
+                .container{
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Coffee Menu</h1>
+        <div class="container">
+            <div class="card">
+                <img src="https://images.unsplash.com/photo-1511920170033-f8396924c348?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bGF0dGV8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60" alt="Coffee Image" width="200" height="200">
+                <h2>Cappuccino</h2>
+                <p>A creamy coffee with steamed milk foam.</p>
+                <div class="price">Price: $49</div>
+            </div>
+            <div class="card">
+                <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y29mZmVlfGVufDB8fDB8fHww&auto=format&fit=crop&w=500&q=60" alt="Coffee Image" width="200" height="200">
+                <h2>Espresso</h2>
+                <p>A strong and bold coffee shot.</p>
+                <div class="price">Price: $49</div>
+            </div>
+            <div class="card">
+                <img src="https://images.unsplash.com/photo-1511920170033-f8396924c348?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bGF0dGV8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60" alt="Coffee Image" width="200" height="200">
+                <h2>Mocha</h2>
+                <p>A chocolate-flavored variant of a latte.</p>
+                <div class="price">Price: $49</div>
+            </div>
+            <div class="card">
+                <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y29mZmVlfGVufDB8fDB8fHww&auto=format&fit=crop&w=500&q=60" alt="Coffee Image" width="200" height="200">
+                <h2>Americano</h2>
+                <p>A diluted espresso with hot water.</p>
+                <div class="price">Price: $49</div>
+            </div>
+            <div class="card">
+                <img src="https://images.unsplash.com/photo-1511920170033-f8396924c348?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bGF0dGV8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60" alt="Coffee Image" width="200" height="200">
+                <h2>Latte</h2>
+                <p>A smooth blend of espresso and steamed milk.</p>
+                <div class="price">Price: $49</div>
+            </div>
+            <div class="card">
+                <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y29mZmVlfGVufDB8fDB8fHww&auto=format&fit=crop&w=500&q=60" alt="Coffee Image" width="200" height="200">
+                <h2>Macchiato</h2>
+                <p>An espresso with a small amount of foamed milk.</p>
+                <div class="price">Price: $49</div>
+            </div>
+            <div class="card">
+                <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y29mZmVlfGVufDB8fDB8fHww&auto=format&fit=crop&w=500&q=60" alt="Coffee Image" width="200" height="200">
+                <h2>Flat White</h2>
+                <p>A velvety coffee with microfoam milk.</p>
+                <div class="price">Price: $49</div>
+            </div>
+            <div class="card">
+                <img src="https://images.unsplash.com/photo-1511920170033-f8396924c348?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bGF0dGV8ZW58MHx8MHx8&auto=format&fit=crop&w=500&q=60" alt="Coffee Image" width="200" height="200">
+                <h2>Irish Coffee</h2>
+                <p>A cocktail of hot coffee, Irish whiskey, and sugar.</p>
+                <div class="price">Price: $49</div>
+            </div>
+            <div class="card">
+                <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Y29mZmVlfGVufDB8fDB8fHww&auto=format&fit=crop&w=500&q=60" alt="Coffee Image" width="200" height="200">
+                <h2>Affogato</h2>
+                <p>A scoop of vanilla ice cream topped with a shot of hot espresso.</p>
+                <div class="price">Price: $49</div>
+            </div>
+        </div>
+    </body>
