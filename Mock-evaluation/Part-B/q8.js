@@ -17,4 +17,4 @@ let sum=nums.reduce((acc,current)=>acc+current,0);
 console.log(sum);
 
 let descending=nums.sort((a,b)=>b-a);
-console.log(descending);
+console.log(descending)
