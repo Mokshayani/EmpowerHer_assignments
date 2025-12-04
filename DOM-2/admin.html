@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Book Management - Admin</title>
+
+    <!-- INTERNAL CSS -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .navbar {
+            background: #222;
+            padding: 10px;
+        }
+        .navbar button {
+            padding: 10px 20px;
+            border: none;
+            background: #fff;
+            color: #222;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .admin-container {
+            width: 80%;
+            margin: auto;
+            padding-top: 20px;
+        }
+        .form-section input, 
+        .form-section select {
+            padding: 10px;
+            margin: 5px;
+        }
+        .form-section button {
+            padding: 10px 20px;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .controls {
+            margin-top: 20px;
+        }
+        .controls button,
+        .controls select {
+            padding: 10px 20px;
+            margin-right: 10px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .card {
+            background: white;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            border-radius: 8px;
+            text-align: center;
+        }
+        .card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+        .delete-btn {
+            background: crimson;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+
+</head>
+<body>
+
+    <div class="navbar">
+        <button onclick="window.location.href='index.html'">Home</button>
+    </div>
+
+    <div class="admin-container">
+        <h2>Book Management Page</h2>
+
+        <!-- Add Book Form -->
+        <div class="form-section">
+            <input type="text" id="title" placeholder="Book Title" />
+            <input type="text" id="author" placeholder="Author Name" />
+            <select id="category">
+                <option value="Fiction">Fiction</option>
+                <option value="Comedy">Comedy</option>
+                <option value="Technical">Technical</option>
+            </select>
+            <button id="addBook">Add Book</button>
+        </div>
+
+        <!-- Sorting & Filtering -->
+        <div class="controls">
+            <button id="sortAZ">Sort A → Z</button>
+            <button id="sortZA">Sort Z → A</button>
+
+            <select id="filterCategory">
+                <option value="All">All</option>
+                <option value="Fiction">Fiction</option>
+                <option value="Comedy">Comedy</option>
+                <option value="Technical">Technical</option>
+            </select>
+        </div>
+
+        <!-- Books Display -->
+        <div id="bookGrid" class="grid"></div>
+    </div>
+
+
+    <!-- INTERNAL JAVASCRIPT -->
+    <script>
+        let books = [];
+        const imageUrl = "https://m.media-amazon.com/images/I/71ZB18P3inL._SY522_.jpg";
+
+        const titleInput = document.getElementById('title');
+        const authorInput = document.getElementById('author');
+        const categoryInput = document.getElementById('category');
+        const addBookBtn = document.getElementById('addBook');
+        const bookGrid = document.getElementById('bookGrid');
+        const sortAZ = document.getElementById('sortAZ');
+        const sortZA = document.getElementById('sortZA');
+        const filterCategory = document.getElementById('filterCategory');
+
+        function renderBooks(list) {
+            bookGrid.innerHTML = '';
+            list.forEach((book, index) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+
+                card.innerHTML = `
+                    <img src="${book.imageUrl}" />
+                    <h3>${book.title}</h3>
+                    <p>${book.author}</p>
+                    <p><b>${book.category}</b></p>
+                    <button class="delete-btn" onclick="deleteBook(${index})">Delete</button>
+                `;
+
+                bookGrid.appendChild(card);
+            });
+        }
+
+        addBookBtn.onclick = () => {
+            const book = {
+                title: titleInput.value,
+                author: authorInput.value,
+                category: categoryInput.value,
+                imageUrl: imageUrl
+            };
+
+            books.push(book);
+            titleInput.value = '';
+            authorInput.value = '';
+
+            renderBooks(books);
+        };
+
+        function deleteBook(index) {
+            books.splice(index, 1);
+            renderBooks(books);
+        }
+
+        sortAZ.onclick = () => {
+            books.sort((a, b) => a.title.localeCompare(b.title));
+            renderBooks(books);
+        };
+
+        sortZA.onclick = () => {
+            books.sort((a, b) => b.title.localeCompare(a.title));
+            renderBooks(books);
+        };
+
+        filterCategory.onchange = () => {
+            if (filterCategory.value === 'All') renderBooks(books);
+            else renderBooks(books.filter(b => b.category === filterCategory.value));
+        };
+    </script>
+
+</body>
+</html>
