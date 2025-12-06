@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Enhanced Todo List</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+    }
+    h2 {
+      margin-bottom: 10px;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin: 5px 0;
+    }
+    #taskInput, #searchInput {
+      width: 100%;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 15px;
+    }
+    li {
+      background: #f2f2f2;
+      padding: 10px;
+      margin: 7px 0;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .completed {
+      text-decoration: line-through;
+      color: gray;
+      opacity: 0.7;
+    }
+    button {
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h2>Enhanced Todo List</h2>
+  <input type="text" id="searchInput" placeholder="Search tasks...">
+  <input type="text" id="taskInput" placeholder="Enter new task...">
+  <button id="addBtn">Add Task</button>
+
+  <ul id="taskList"></ul>
+
+  <script>
+    const taskInput = document.getElementById("taskInput");
+    const addBtn = document.getElementById("addBtn");
+    const searchInput = document.getElementById("searchInput");
+    const taskList = document.getElementById("taskList");
+
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+    function saveTasks() {
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+
+    function renderTasks(filter = "") {
+      taskList.innerHTML = "";
+
+      tasks
+        .filter(task => task.text.toLowerCase().includes(filter.toLowerCase()))
+        .forEach(task => {
+          const li = document.createElement("li");
+
+          const span = document.createElement("span");
+          span.textContent = task.text;
+          if (task.completed) span.classList.add("completed");
+
+          span.addEventListener("click", () => {
+            task.completed = !task.completed;
+            saveTasks();
+            renderTasks(searchInput.value);
+          });
+
+          const delBtn = document.createElement("button");
+          delBtn.textContent = "Delete";
+          delBtn.addEventListener("click", () => {
+            tasks = tasks.filter(t => t.id !== task.id);
+            saveTasks();
+            renderTasks(searchInput.value);
+          });
+
+          li.appendChild(span);
+          li.appendChild(delBtn);
+          taskList.appendChild(li);
+        });
+    }
+    addBtn.addEventListener("click", () => {
+      const text = taskInput.value.trim();
+      if (text === "") {
+        alert("Please enter a task!");
+        return;
+      }
+
+      const newTask = {
+        id: Date.now(),
+        text: text,
+        completed: false
+      };
+
+      tasks.push(newTask);
+      saveTasks();
+      renderTasks(searchInput.value);
+
+      taskInput.value = "";
+    });
+
+    searchInput.addEventListener("input", () => {
+      renderTasks(searchInput.value);
+    });
+
+    renderTasks();
+  </script>
+</body>
+</html>
