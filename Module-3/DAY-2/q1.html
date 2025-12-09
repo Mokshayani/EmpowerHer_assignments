@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Book Management — Firebase Firestore</title>
+  <style>
+    :root{
+        --accent:#4f46e5;
+        --bg:#f7f7fb;
+        --card:#fff;
+        --muted:#666
+    }
+    *{
+        box-sizing:border-box
+    }
+    body{
+        margin:0;
+        font-family:Inter,system-ui,Arial;
+        background:var(--bg);
+        color:#111
+    }
+    .app{
+        display:flex;
+        min-height:100vh
+    }
+    .sidebar{
+        width:320px;
+        background:#fff;
+        padding:20px;
+        border-right:1px solid #e6e6ee
+    }
+    .brand{
+        font-weight:700;
+        color:var(--accent);
+        margin-bottom:12px
+    }
+    form .field{
+        margin-bottom:12px
+    }
+    label{
+        display:block;
+        font-size:13px;
+        color:var(--muted);
+        margin-bottom:6px
+    }
+    input[type=text], 
+    input[type=number]{
+        width:100%;
+        padding:10px;
+        border:1px solid #ddd;
+        border-radius:8px
+    }
+    button{
+        cursor:pointer;
+        padding:10px 12px;
+        border-radius:8px;
+        border:0;
+        background:var(--accent);
+        color:white
+    }
+    .muted{
+        color:var(--muted);
+        font-size:13px
+    }
+    .main{
+        flex:1;
+        padding:24px
+    }
+    .topbar{
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        margin-bottom:16px
+    }
+    .grid{display:grid;
+        grid-template-columns:repeat(3,1fr);
+        gap:18px
+    }
+    .card{
+        background:var(--card);
+        border-radius:10px;
+        padding:12px;
+        box-shadow:0 6px 18px rgba(15,15,25,0.04);
+        display:flex;
+        flex-direction:column
+    }
+    .cover{
+        height:160px;
+        background:#f0f0f6;
+        border-radius:8px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        margin-bottom:10px;
+        overflow:hidden
+    }
+    .cover img{
+        width:100%;
+        height:100%;
+        object-fit:cover
+    }
+    .title{
+        font-weight:600;
+        margin-bottom:6px
+    }
+    .meta{
+        font-size:13px;
+        color:var(--muted);
+        margin-bottom:10px
+    }
+    .card-actions{
+        margin-top:auto;
+        display:flex;
+        gap:8px
+    }
+    .btn-ghost{
+        background:#f3f4f8;
+        color:#111;
+        padding:8px;
+        border-radius:8px;
+        border:1px solid #eee
+    }
+
+    @media (max-width:1000px){
+        .grid{grid-template-columns:repeat(2,1fr)}
+    }
+    @media (max-width:640px){
+        .app{flex-direction:column}.sidebar{width:100%;border-right:none;border-bottom:1px solid #eee}.grid{grid-template-columns:1fr}
+    }
+
+    .modal-backdrop{
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,0.4);
+        display:flex;
+        align-items:center;
+        justify-content:center
+    }
+    .modal{
+        background:white;
+        padding:18px;
+        border-radius:10px;
+        max-width:720px;
+        width:95%;
+        box-shadow:0 8px 30px rgba(9,9,20,0.3)
+    }
+    .modal .modal-cover{
+        height:300px;
+        background:#fafafa;
+        border-radius:8px;
+        margin-bottom:10px;
+        overflow:hidden
+    }
+
+    .small{
+        font-size:13px
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">📚 Book Manager</div>
+      <div class="muted">Add a book to Firestore</div>
+      <form id="addBookForm">
+        <div class="field">
+          <label>Title</label>
+          <input id="title" type="text" required />
+        </div>
+        <div class="field">
+          <label>Author</label>
+          <input id="author" type="text" required />
+        </div>
+        <div class="field">
+          <label>Price (USD)</label>
+          <input id="price" type="number" step="0.01" required />
+        </div>
+        <div class="field">
+          <label>Image URL</label>
+          <input id="image" type="text" placeholder="https://..." required />
+        </div>
+        <div style="display:flex;gap:8px">
+          <button type="submit">Add Book</button>
+          <button type="button" id="dummyBtn" class="btn-ghost">Insert Dummy Data</button>
+        </div>
+      </form>
+
+      <hr style="margin:16px 0;border:none;border-top:1px dashed #ececf2" />
+      <div class="muted small">Usage notes</div>
+      <ol style="padding-left:18px;font-size:13px;color:var(--muted)">
+        <li>Replace <code>firebaseConfig</code> with your project's config.</li>
+        <li>Serve this file from a local server (modules require it).</li>
+        <li>All changes sync in realtime with Firestore.</li>
+      </ol>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <h2>Books</h2>
+        <div class="muted">Realtime Firestore — 3 cards per row</div>
+      </div>
+
+      <div id="booksGrid" class="grid">
+      </div>
+    </main>
+  </div>
+
+  <div id="modalRoot"></div>
+
+  <script type="module">
+    // -----------------------------
+    // IMPORTANT: Replace the firebaseConfig below
+    // with your project's config object from the Firebase console.
+    // -----------------------------
+
+    // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyBSGphNCT1XjFIlXwZpNLnwHp0K1R0cNBw",
+  authDomain: "book-management-web-app-7ca38.firebaseapp.com",
+  databaseURL: "https://book-management-web-app-7ca38-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "book-management-web-app-7ca38",
+  storageBucket: "book-management-web-app-7ca38.firebasestorage.app",
+  messagingSenderId: "533213473890",
+  appId: "1:533213473890:web:7cf3b5f6f078c4c68d353b",
+  measurementId: "G-BQM0E2MN5P"
+};
+
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+
+    const booksGrid = document.getElementById('booksGrid');
+    const addForm = document.getElementById('addBookForm');
+    const dummyBtn = document.getElementById('dummyBtn');
+    const modalRoot = document.getElementById('modalRoot');
+
+    const colRef = collection(db, 'books');
+    const q = query(colRef, orderBy('createdAt', 'desc'));
+
+    function clearGrid(){ booksGrid.innerHTML = ''; }
+
+    function createCard(id, data){
+      const div = document.createElement('div');
+      div.className = 'card';
+
+      const cover = document.createElement('div'); cover.className = 'cover';
+      const img = document.createElement('img'); img.src = data.coverImageURL || '';
+      img.alt = data.title;
+      cover.appendChild(img);
+
+      const title = document.createElement('div'); title.className = 'title'; title.textContent = data.title;
+      const meta = document.createElement('div'); meta.className = 'meta'; meta.textContent = `By ${data.author} • $${Number(data.price).toFixed(2)}`;
+
+      const actions = document.createElement('div'); actions.className = 'card-actions';
+      const btnUpdate = document.createElement('button'); btnUpdate.className = 'btn-ghost'; btnUpdate.textContent = 'Update Author';
+      const btnDelete = document.createElement('button'); btnDelete.className = 'btn-ghost'; btnDelete.textContent = 'Delete';
+      const btnView = document.createElement('button'); btnView.className = 'btn-ghost'; btnView.textContent = 'View Details';
+
+      btnUpdate.addEventListener('click', async ()=>{
+        const newAuthor = prompt('Enter new author name', data.author);
+        if(newAuthor && newAuthor.trim() !== data.author){
+          await updateDoc(doc(db, 'books', id), { author: newAuthor });
+        }
+      });
+
+      btnDelete.addEventListener('click', async ()=>{
+        if(confirm('Delete this book?')){
+          await deleteDoc(doc(db, 'books', id));
+        }
+      });
+
+      btnView.addEventListener('click', ()=> showModal(data));
+
+      actions.appendChild(btnUpdate);
+      actions.appendChild(btnDelete);
+      actions.appendChild(btnView);
+
+      div.appendChild(cover);
+      div.appendChild(title);
+      div.appendChild(meta);
+      div.appendChild(actions);
+
+      return div;
+    }
+
+    function showModal(data){
+      modalRoot.innerHTML = '';
+      const back = document.createElement('div'); back.className = 'modal-backdrop';
+      back.addEventListener('click', (e)=>{ if(e.target === back) modalRoot.innerHTML=''; });
+
+      const modal = document.createElement('div'); modal.className = 'modal';
+      const cover = document.createElement('div'); cover.className = 'modal-cover';
+      const img = document.createElement('img'); img.src = data.coverImageURL || '';
+      img.style.width='100%'; img.style.height='100%'; img.style.objectFit='cover';
+      cover.appendChild(img);
+
+      const h = document.createElement('h3'); h.textContent = data.title;
+      const p1 = document.createElement('div'); p1.textContent = 'Author: ' + data.author;
+      const p2 = document.createElement('div'); p2.textContent = 'Price: $' + Number(data.price).toFixed(2);
+
+      const close = document.createElement('div'); close.style.marginTop='12px';
+      const closeBtn = document.createElement('button'); closeBtn.className='btn-ghost'; closeBtn.textContent='Close';
+      closeBtn.addEventListener('click', ()=> modalRoot.innerHTML='');
+      close.appendChild(closeBtn);
+
+      modal.appendChild(cover);
+      modal.appendChild(h);
+      modal.appendChild(p1);
+      modal.appendChild(p2);
+      modal.appendChild(close);
+
+      back.appendChild(modal);
+      modalRoot.appendChild(back);
+    }
+
+    onSnapshot(q, (snapshot)=>{
+      clearGrid();
+      if(snapshot.empty){
+        booksGrid.innerHTML = '<div class="muted">No books found. Use "Insert Dummy Data" or add one above.</div>';
+        return;
+      }
+      snapshot.forEach(docSnap => {
+        const book = docSnap.data();
+        const card = createCard(docSnap.id, book);
+        booksGrid.appendChild(card);
+      });
+    }, (err)=>{
+      console.error('Realtime listener error:', err);
+    });
+
+    addForm.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const title = document.getElementById('title').value.trim();
+      const author = document.getElementById('author').value.trim();
+      const price = parseFloat(document.getElementById('price').value) || 0;
+      const image = document.getElementById('image').value.trim();
+
+      if(!title || !author) return alert('Title and Author required');
+
+      await addDoc(colRef, {
+        title, author, price, coverImageURL: image, createdAt: serverTimestamp()
+      });
+
+      addForm.reset();
+    });
+
+    const dummyBooks = [
+      { title:'The Pragmatic Programmer', author:'Andrew Hunt', price:39.99, coverImageURL:'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=800&q=60' },
+      { title:'Clean Code', author:'Robert C. Martin', price:34.99, coverImageURL:'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=800&q=60' },
+      { title:'You Don\'t Know JS', author:'Kyle Simpson', price:24.50, coverImageURL:'https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=60' },
+      { title:'Eloquent JavaScript', author:'Marijn Haverbeke', price:29.00, coverImageURL:'https://images.unsplash.com/photo-1526318472351-c75fcf070c69?auto=format&fit=crop&w=800&q=60' },
+      { title:'Design Patterns', author:'Erich Gamma', price:45.00, coverImageURL:'https://images.unsplash.com/photo-1519681393784-95bfa22e9a3a?auto=format&fit=crop&w=800&q=60' }
+    ];
+
+    dummyBtn.addEventListener('click', async ()=>{
+      if(!confirm('Insert 5 dummy books into Firestore?')) return;
+      for(const b of dummyBooks){
+        await addDoc(colRef, { ...b, createdAt: serverTimestamp() });
+      }
+      alert('Dummy books added — they will appear shortly.');
+    });
+
+  </script>
+</body>
+</html>
